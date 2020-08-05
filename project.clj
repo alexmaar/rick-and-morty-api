@@ -7,7 +7,8 @@
                  [clj-http "3.10.1"]
                  [metosin/compojure-api "1.1.13"]
                  [ring/ring-jetty-adapter "1.6.3"]
-                 [org.clojure/data.json "0.2.6"]]
+                 [org.clojure/data.json "0.2.6"]
+                 [metosin/ring-swagger "0.26.2"]]
   :main ^:skip-aot rick-and-morty-api.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
