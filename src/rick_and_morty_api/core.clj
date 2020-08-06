@@ -9,9 +9,10 @@
 (def users (ref {})) ;map of users and amout of their requests
 
 (defn get-by-number [number]
-  (if (<= 0 (Integer/parseInt number) 591)
-    (if-let [character (get @characters number)]
-      (merge {:success true :source "db"} character)
+  (if (<= 0 number 591)
+  ;; (if (<= 0 (Integer/parseInt number) 591)
+    (if-let [character-data (get @characters number)]
+      (merge {:success true :source "db"}  {number character-data})
       (let [body (:body (client/get (str "https://rickandmortyapi.com/api/character/" number)))
             content (json/read-str body :key-fn keyword)
            {name :name episode :episode} content
@@ -34,14 +35,28 @@
 
 (def app
   (api
-   (GET "/character" [number]
-     (ok  (get-by-number number)))
-   (GET "/character-and-nick" [number nick]
-     (ok (get-by-number-and-nick number nick)))
-   (GET "/requests-number" [nick]
-     (ok (requests-number nick)))))
+   {:swagger
+    {:ui "/"
+     :spec "/swagger.json"
+     :data {:info {:title "Rick and Morty API"
+                   :description "Compojure Api example"}
+            :tags [{:name "api", :description "Rick and Morty API"}]
+            :consumes ["application/json"]
+            :produces ["application/json"]}}}
+   (context "/api" []
+     :tags ["api"]
+     (GET "/character" []
+       :query-params [id :- Long]
+       (ok  (get-by-number id)))
+     (GET "/character-and-nick" []
+       :query-params [id :- Long, nick :- String]
+       (ok (get-by-number-and-nick id nick)))
+     (GET "/requests-number" []
+       :query-params [nick :- String]
+       (ok (requests-number nick))))))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
   (run-jetty app {:port 3000}))
+
